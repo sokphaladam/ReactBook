@@ -1,0 +1,45 @@
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100px;
+  background-color: #ffffff;
+  -webkit-box-shadow: 1px 1px 3px 0px #999999; 
+  box-shadow: 1px 1px 3px 0px #999999;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: auto;
+    
+    li {
+      font-size: 25px;
+      text-align: center;
+      color: #5352ed;
+      padding: 10px;
+      cursor: pointer;
+      transition: all .3s;
+    }
+
+    li:hover {
+      color: #3737a5;
+      background-color: #f1f2f6;
+      -webkit-box-shadow: 1px 1px 3px 0px #999999; 
+      box-shadow: 1px 1px 3px 0px #999999;
+    }
+
+    .user {
+      position: absolute;
+      bottom: 0;
+      text-align: center;
+      width: 100%;
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+      }
+    }
+  }
+}
