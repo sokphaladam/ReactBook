@@ -7,6 +7,7 @@ export const MenuItem = [
   {
     icon: 'far fa-bell',
     title: 'Notification',
-    to: '/notification'
+    to: '/notification',
+    isBadge: true
   }
 ]

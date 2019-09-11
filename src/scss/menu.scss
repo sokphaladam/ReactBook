@@ -43,3 +43,25 @@
     }
   }
 }
+
+.card {
+
+  margin-bottom: 30px;
+  
+  .card-top {
+    padding-bottom: 20px;
+    display: flex;
+    img {
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      margin-right: 10px;
+    }
+    .card-title {
+      margin-bottom: 5px;
+    }
+  }
+  .card-img {
+    margin-bottom: 20px;
+  }
+}

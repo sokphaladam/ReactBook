@@ -24,6 +24,7 @@ export class MenuComponent extends React.Component<Props>{
               <Link to={e.to} key={i}>
                 <li data-toggle="tooltip" data-placement="top" title={e.title}>
                   <i className={e.icon}></i>
+                  <span className="badge badge-danger" style={{ fontSize: 12, position: 'absolute' }} hidden={!e.isBadge}>5</span>
                 </li>
               </Link>
             ))
