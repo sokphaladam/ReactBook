@@ -3,6 +3,7 @@ import { gql } from 'apollo-boost';
 import { Query, Mutation, MutationFunction } from 'react-apollo';
 import monent from 'moment';
 import { ModalComponent } from '../../components/ModalComponent';
+import { CommentScreen } from './CommentScreen';
 
 const QUERY_BOOK_LIST = gql`
 query getBookList{
@@ -27,23 +28,6 @@ query getBookList{
 const MUTATION_LOVE = gql`
 mutation createLove($id: Int!){
   createLove(id: $id)
-}
-`;
-
-const QUERY_COMMENT = gql`
-query getCommentList($id: Int!){
-  getCommentList(book_id: $id){
-    id,
-    book_id,
-    user{
-      first_name,
-      last_name,
-      picture
-    },
-    comment,
-    created_at,
-    updated_at
-  }
 }
 `;
 
@@ -78,15 +62,7 @@ export class PageScreen extends React.Component<Props> {
     return (
       <div>
         <ModalComponent title='Comment' show={this.state.show} statusModal={(e) => this.setState({ show: e })}>
-          <Query 
-            query={QUERY_COMMENT} 
-            skip={this.state.show === false} 
-            variables={{ id: Number(this.state.id) }} 
-            fetchPolicy='network-only' 
-            onCompleted={this.onCompletedComment}
-          >
-            {this.renderComment}
-          </Query>
+          <CommentScreen show={this.state.show} hasChange={this.props.hasChange} id={this.state.id}/>
         </ModalComponent>
         <Query query={QUERY_BOOK_LIST} fetchPolicy="network-only">
           {this.renderQueryBookList}
@@ -155,25 +131,6 @@ export class PageScreen extends React.Component<Props> {
           )
         }
       </Mutation>
-    )
-  }
-
-  renderComment = ({ loading, data, refetch }: any) => {
-    if (loading) return <div>Loading...</div>
-    if (this.props.hasChange) refetch();
-    return (
-      <div className="list-group">
-        {
-          this.state.data.map((e: any[]) => (
-            <div className="list-group-item">
-              <div className="d-flex w-100 justify-content-between">
-                <h6 className="mb-1">List group item heading</h6>
-                <small>3 days ago</small>
-              </div>
-            </div>
-          ))
-        }
-      </div>
     )
   }
 }

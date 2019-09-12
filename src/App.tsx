@@ -14,6 +14,7 @@ import { PageScreen } from './screen/Page/PageScreen';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import { SubscriptionComponent } from './components/SubscriptionComponent';
+import { NotificationScreen } from './screen/Notification/NotificationScreen';
 
 const QUERY_ME = gql`
   query me{
@@ -118,6 +119,7 @@ export default class App extends React.Component{
                     <MenuComponent menuItems={MenuItem} username={data.me.username} image={data.me.picture} hasChange={this.state.isUpdate}/>
                     <div className="Desktop-Menu">
                       <Route exact path="/page" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate}/> }/>
+                      <Route exact path="/notification" render={ (props) => <NotificationScreen {...props} hasChange={this.state.isUpdate}/> }/>
                     </div>
                 </DesktopComponent>
               )

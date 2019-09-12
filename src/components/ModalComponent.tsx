@@ -30,9 +30,7 @@ export class ModalComponent extends React.Component<Props>{
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div className="modal-body">
-              {this.props.children}
-            </div>
+            {this.props.children}
           </div>
         </div>
       </div>
