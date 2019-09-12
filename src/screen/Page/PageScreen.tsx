@@ -1,7 +1,8 @@
 import React from 'react';
 import { gql } from 'apollo-boost';
-import { Query, Subscription, OnSubscriptionDataOptions, Mutation, MutationFunction } from 'react-apollo';
+import { Query, Mutation, MutationFunction } from 'react-apollo';
 import monent from 'moment';
+import { ModalComponent } from '../../components/ModalComponent';
 
 const QUERY_BOOK_LIST = gql`
 query getBookList{
@@ -29,59 +30,76 @@ mutation createLove($id: Int!){
 }
 `;
 
-const SUBSCRIPTION_LOVE = gql`
-  subscription{
-    LoveSubscription
+const QUERY_COMMENT = gql`
+query getCommentList($id: Int!){
+  getCommentList(book_id: $id){
+    id,
+    book_id,
+    user{
+      first_name,
+      last_name,
+      picture
+    },
+    comment,
+    created_at,
+    updated_at
   }
-`;
-
-const SUBSCRIPTION_COMMENT = gql`
-subscription{
-  CommentSubscription
 }
 `;
 
-export class PageScreen extends React.Component {
+type Props = {
+  hasChange: boolean;
+}
+
+export class PageScreen extends React.Component<Props> {
 
   state: {
     isUpdate: boolean;
+    show: boolean;
+    id: number;
+    data: any[];
   }
 
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props);
     this.state = {
-      isUpdate: false
+      isUpdate: this.props.hasChange,
+      show: false,
+      id: 0,
+      data: []
     }
   }
 
-  onSubscriptionData = (option: OnSubscriptionDataOptions<any>) => {
-    if (option.subscriptionData.data.LoveSubscription === true || option.subscriptionData.data.CommentSubscription === true) {
-      this.setState({ isUpdate: option.subscriptionData.data.LoveSubscription });
-    }
-    setTimeout(() => {
-      this.setState({ isUpdate: false })
-    }, 100)
+  onCompletedComment = (data: any) => {
+    this.setState({ data: data.getCommentList })
   }
 
   render() {
     return (
-      <div className="row">
-        <div className="col-md-5">
-          {this.renderSubcriptionLove()}
-          <Query query={QUERY_BOOK_LIST} fetchPolicy="network-only">
-            {this.renderQueryBookList}
+      <div>
+        <ModalComponent title='Comment' show={this.state.show} statusModal={(e) => this.setState({ show: e })}>
+          <Query 
+            query={QUERY_COMMENT} 
+            skip={this.state.show === false} 
+            variables={{ id: Number(this.state.id) }} 
+            fetchPolicy='network-only' 
+            onCompleted={this.onCompletedComment}
+          >
+            {this.renderComment}
           </Query>
-        </div>
-        <div className="col-md-1" />
+        </ModalComponent>
+        <Query query={QUERY_BOOK_LIST} fetchPolicy="network-only">
+          {this.renderQueryBookList}
+        </Query>
       </div>
     )
   }
 
   renderQueryBookList = ({ data, loading, refetch }: any) => {
     if (loading) return <div>Loading....</div>
-    if (this.state.isUpdate) refetch();
+    if (this.props.hasChange) refetch();
     return (
-      <div>
+      <div className="card-columns">
         {
           data.getBookList.map((e: any) => this.renderCard(e))
         }
@@ -100,8 +118,8 @@ export class PageScreen extends React.Component {
               alt=""
             />
             <div>
-              <h6 className="card-title">{data.user.first_name} {data.user.last_name}</h6>
-              <b className="card-subtitle text-muted">{monent(date).fromNow()}</b>
+              <h6 className="card-title" style={{ marginBottom: 1 }}>{data.user.first_name} {data.user.last_name}</h6>
+              <sub className="card-subtitle text-muted">{monent(date).fromNow()}</sub>
             </div>
           </div>
           <p className="card-text">{data.title}</p>
@@ -111,7 +129,7 @@ export class PageScreen extends React.Component {
             className="card-img"
           />
           {this.renderMutationLove(data.love, data.id, data.isLove)}
-          <i className="card-link text-muted"> <i className="far fa-comment-dots" style={{ marginRight: 20 }}></i> {data.comment} </i>
+          <i className="card-link text-muted" style={{ cursor: 'pointer' }} onClick={() => { this.setState({ show: true, id: data.id }) }}> <i className="far fa-comment-dots" style={{ marginRight: 20 }}></i> {data.comment} </i>
         </div>
       </div>
     )
@@ -123,15 +141,15 @@ export class PageScreen extends React.Component {
         {
           (update: MutationFunction) => (
             <i
-              className={`card-link ${isLove ? 'text-danger': 'text-muted'}`}
+              className={`card-link ${isLove ? 'text-danger' : 'text-muted'}`}
               style={{ cursor: 'pointer' }}
-              onClick={() => { 
+              onClick={() => {
                 update({
-                  variables: {id: Number(id)}
-                }) 
+                  variables: { id: Number(id) }
+                })
               }}
             >
-              <i className={`fa${isLove ? 's':'r'} fa-heart`} style={{ marginRight: 20 }}></i>
+              <i className={`fa${isLove ? 's' : 'r'} fa-heart`} style={{ marginRight: 20 }}></i>
               {love}
             </i>
           )
@@ -140,23 +158,22 @@ export class PageScreen extends React.Component {
     )
   }
 
-  renderSubcriptionLove() {
+  renderComment = ({ loading, data, refetch }: any) => {
+    if (loading) return <div>Loading...</div>
+    if (this.props.hasChange) refetch();
     return (
-      <Subscription subscription={SUBSCRIPTION_LOVE} fetchPolicy='network-only' onSubscriptionData={this.onSubscriptionData}>
+      <div className="list-group">
         {
-          ({ data, loading }: any) => <i />
+          this.state.data.map((e: any[]) => (
+            <div className="list-group-item">
+              <div className="d-flex w-100 justify-content-between">
+                <h6 className="mb-1">List group item heading</h6>
+                <small>3 days ago</small>
+              </div>
+            </div>
+          ))
         }
-      </Subscription>
-    )
-  }
-
-  renderSubcriptionComment() {
-    return (
-      <Subscription subscription={SUBSCRIPTION_COMMENT} fetchPolicy='network-only' onSubscriptionData={this.onSubscriptionData}>
-        {
-          ({ data, loading }: any) => <i />
-        }
-      </Subscription>
+      </div>
     )
   }
 }

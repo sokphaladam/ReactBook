@@ -13,6 +13,7 @@ import { Route } from 'react-router-dom';
 import { PageScreen } from './screen/Page/PageScreen';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
+import { SubscriptionComponent } from './components/SubscriptionComponent';
 
 const QUERY_ME = gql`
   query me{
@@ -29,6 +30,7 @@ export default class App extends React.Component{
   state: {
     token: string | null;
     client: ApolloClient<any>;
+    isUpdate: boolean;
   }
 
   constructor(props: any){
@@ -38,13 +40,19 @@ export default class App extends React.Component{
 
     this.state = {
       token: TOKEN,
-      client: this.renderApolloClient(TOKEN)
+      client: this.renderApolloClient(TOKEN),
+      isUpdate: false
     }
+  }
+
+  hasChange = (e: boolean) => {
+    this.setState({ isUpdate: e })
   }
 
   render(){
     return(
       <ApolloProvider client={this.state.client}>
+        <SubscriptionComponent hasChange={this.hasChange}/>
         {this.renderVerifyToken()}
       </ApolloProvider>
     )
@@ -101,11 +109,15 @@ export default class App extends React.Component{
           {
             ({loading, data}: any) => {
               if(loading) return <div>Loading....</div>
+              if(data.me === null){
+                this.logout();
+                return <LoginScreen saveToken={this.saveToken}/>
+              }
               return(
                 <DesktopComponent>
-                    <MenuComponent menuItems={MenuItem} username={data.me.username} image={data.me.image}/>
+                    <MenuComponent menuItems={MenuItem} username={data.me.username} image={data.me.picture} hasChange={this.state.isUpdate}/>
                     <div className="Desktop-Menu">
-                      <Route exact path="/page" component={PageScreen}/>
+                      <Route exact path="/page" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate}/> }/>
                     </div>
                 </DesktopComponent>
               )
@@ -124,6 +136,11 @@ export default class App extends React.Component{
 
     localStorage.setItem('token', token);
 
+  }
+
+  logout = () => {
+    this.setState({ token: '' });
+    localStorage.removeItem('token');
   }
 
 }
