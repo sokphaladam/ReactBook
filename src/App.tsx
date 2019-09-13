@@ -15,11 +15,15 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import { SubscriptionComponent } from './components/SubscriptionComponent';
 import { NotificationScreen } from './screen/Notification/NotificationScreen';
+import { ProfileScreen } from './screen/Profile/ProfileScreen';
+import { createUploadLink } from 'apollo-upload-client';
+import { ApolloLink } from 'apollo-boost';
+import { onError } from 'apollo-link-error';
 
 const QUERY_ME = gql`
   query me{
     me{
-      id, first_name, last_name, gender, username, picture
+      id, first_name, last_name, gender, username, picture, created_at
     }
   }
 `;
@@ -44,6 +48,8 @@ export default class App extends React.Component{
       client: this.renderApolloClient(TOKEN),
       isUpdate: false
     }
+
+    this.verifyToken();
   }
 
   hasChange = (e: boolean) => {
@@ -70,7 +76,7 @@ export default class App extends React.Component{
         reconnect: true
       }
     });
-    const link = split(
+    const linkWS = split(
       ({ query }) => {
         const definition = getMainDefinition(query);
         return (
@@ -83,7 +89,17 @@ export default class App extends React.Component{
     )
     const CLIENT = new ApolloClient({
       cache: CACHE,
-      link,
+      link: ApolloLink.from([ 
+        onError(({ graphQLErrors, networkError }) => {
+          if (graphQLErrors)
+            graphQLErrors.map(({ message, locations, path }) =>
+              console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`),
+            );
+          if (networkError) console.log(`[Network error]: ${networkError}`);
+        }),
+        createUploadLink({ uri: `${BASE_URL}playground?token=${token}` }),
+        linkWS
+      ]),
       defaultOptions: {
         watchQuery: {
           fetchPolicy: 'cache-and-network',
@@ -108,18 +124,26 @@ export default class App extends React.Component{
       return(
         <Query query={QUERY_ME} fetchPolicy="network-only">
           {
-            ({loading, data}: any) => {
+            ({loading, data, refetch}: any) => {
               if(loading) return <div>Loading....</div>
-              if(data.me === null){
-                this.logout();
+              if(this.state.token === '') {
                 return <LoginScreen saveToken={this.saveToken}/>
               }
               return(
                 <DesktopComponent>
-                    <MenuComponent menuItems={MenuItem} username={data.me.username} image={data.me.picture} hasChange={this.state.isUpdate}/>
+                    <MenuComponent 
+                      menuItems={MenuItem}
+                      hasChange={this.state.isUpdate}
+                      data={data.me}
+                      onLogout={()=>{
+                        this.logout();
+                        refetch();
+                      }}
+                    />
                     <div className="Desktop-Menu">
-                      <Route exact path="/page" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate}/> }/>
+                      <Route exact path="/page" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate} picture={data.me.picture}/> }/>
                       <Route exact path="/notification" render={ (props) => <NotificationScreen {...props} hasChange={this.state.isUpdate}/> }/>
+                      <Route exact path="/profile/:id" render={ (props) => <ProfileScreen {...props} hasChange={this.state.isUpdate}/> }/>
                     </div>
                 </DesktopComponent>
               )
@@ -143,6 +167,22 @@ export default class App extends React.Component{
   logout = () => {
     this.setState({ token: '' });
     localStorage.removeItem('token');
+  }
+
+  verifyToken = async () => {
+    const QRY = await this.state.client.query({
+      query: gql`{ me { id, first_name, last_name, gender, username, picture, created_at }}`
+    });
+
+    const data = QRY.data;
+
+    if(data.me === null) {
+      localStorage.removeItem('token');
+      this.setState({ 
+        token: '',
+        client: this.renderApolloClient(null)
+      });
+    }
   }
 
 }

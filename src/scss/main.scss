@@ -7,22 +7,33 @@
 @import './fontawesome/scss/solid.scss';
 @import './fontawesome/scss/brands.scss';
 @import './fontawesome/scss/regular.scss';
+@import url('https://fonts.googleapis.com/css?family=Manjari:100,400,700&display=swap&subset=malayalam');
 
 body, html {
-  background-color: #f1f2f6;
+  background-color: #F9F7FB;
+  font-family: 'Manjari', sans-serif;
 }
 
 .Desktop {
   width: 100%;
   position: absolute;
-  background-color: #f1f2f6;
+  background-color: #F9F7FB;
+  font-family: 'Manjari', sans-serif;
 
   .Desktop-Menu {
     position: absolute;
-    background-color: #f1f2f6;
-    width: calc(100% - 120px);
+    background-color: #F9F7FB;
+    width: calc(100% - 250px);
     top: 0;
-    left: 110px;
+    left: 250px;
     padding: 30px;
+    -webkit-box-shadow: -1px 2px 10px 4px #e4e4e4; 
+    box-shadow: -1px 2px 10px 4px #e4e4e4;
+    font-family: 'Manjari', sans-serif;
   }
+}
+
+button:focus {
+  outline: none;
+  outline: none;
 }

@@ -5,9 +5,9 @@ import { gql } from 'apollo-boost';
 
 type Props = {
   menuItems: any[];
-  username: string;
-  image: string;
   hasChange: boolean;
+  data: any;
+  onLogout: () => any;
 }
 
 const IMAGE = 'https://lumiere-a.akamaihd.net/v1/images/open-uri20150422-20810-10n7ovy_9b42e613.jpeg?region=0,0,450,450';
@@ -29,8 +29,8 @@ export class MenuComponent extends React.Component<Props>{
   constructor(props: Props) {
     super(props);
     this.state = {
-      username: this.props.username,
-      image: this.props.image,
+      username: this.props.data.username,
+      image: this.props.data.picture,
       count: 0
     }
   }
@@ -41,35 +41,43 @@ export class MenuComponent extends React.Component<Props>{
     })
   }
 
-  render(){
-    return(
+  render() {
+    return (
       <div className="menu">
         <ul>
           {
             this.props.menuItems.map((e: any, i: number) => (
               <Link to={e.to} key={i}>
-                <li data-toggle="tooltip" data-placement="top" title={e.title}>
+                <li data-toggle="tooltip">
                   <i className={e.icon}></i>
+                  <span>{e.title}</span>
                   {this.renderQueryNotification(e.isBadge)}
                 </li>
               </Link>
             ))
           }
           <li className="user" data-toggle="tooltip" data-placement="top" title={this.state.username}>
-            <img src={this.props.image === undefined ? IMAGE : this.state.image} alt=""/>
-          </li>
+              <img src={this.props.data.picture === undefined ? IMAGE : this.state.image} alt="" />
+              <div className="content">
+                <h6>{this.props.data.first_name} {this.props.data.last_name}</h6>
+                <sub>{new Date(this.props.data.created_at * 1).toDateString()}</sub>
+              </div>
+              <button className="close" onClick={this.props.onLogout} style={{ position: 'absolute', right: 10 }}>
+                <span>&times;</span>
+              </button>
+            </li>
         </ul>
       </div>
     )
   }
 
-  renderQueryNotification(isBadge: boolean){
-    return(
+  renderQueryNotification(isBadge: boolean) {
+    return (
       <Query query={QUERY_NOTIFICATION_COUNT} fetchPolicy="network-only" onCompleted={this.onCompleted}>
         {
-          ({loading, data, refetch}: any) => {
-            if(loading) return <div>Loading...</div>
-            if(this.props.hasChange) refetch();
+          ({ loading, data, refetch }: any) => {
+            if (loading) return <div>Loading...</div>
+            if (this.props.hasChange) refetch();
             return <span className="badge badge-danger" style={{ fontSize: 12, position: 'absolute' }} hidden={!isBadge || this.state.count === 0}>{data.getNotificationCount}</span>
           }
         }

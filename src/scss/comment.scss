@@ -34,38 +34,36 @@
     }
 }
 
-.modal-footer {
-    .comment-form {
-        display: flex;
-        width: 100%;
+.comment-form {
+    display: flex;
+    width: 100%;
 
-        .form-control {
-            border-style: none;
-            width: 90%;
-        }
-    
-        .form-control:focus {
-            color: #495057;
-            background-color: #fff;
-            border-color: transparent;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0);
-        }
-
-        button {
-            border-style: none;
-            background-color: transparent;
-            cursor: pointer;
-
-            i{
-                color: #5352ed;
-                transition: all .3s;
-            }
-
-            i:hover {
-                color: #3737a5;
-            }
-        }
-
+    .form-control {
+        border-style: none;
+        width: 90%;
     }
+
+    .form-control:focus {
+        color: #495057;
+        background-color: #fff;
+        border-color: transparent;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0);
+    }
+
+    button {
+        border-style: none;
+        background-color: transparent;
+        cursor: pointer;
+
+        i{
+            color: #5352ed;
+            transition: all .3s;
+        }
+
+        i:hover {
+            color: #3737a5;
+        }
+    }
+
 }

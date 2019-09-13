@@ -65,7 +65,7 @@ export class NotificationScreen extends React.Component<Props>{
       <div className="card">
         <ul className="notification">
           {
-            data.getNotificationList.map((e: any) => (
+            data.getNotificationList.reverse().map((e: any) => (
               <Mutation mutation={MUTATION_STATUS} key={e.id}>
                 {
                   (update: MutationFunction)=> this.renderItem(e, update)
