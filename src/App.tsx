@@ -36,6 +36,7 @@ export default class App extends React.Component{
     token: string | null;
     client: ApolloClient<any>;
     isUpdate: boolean;
+    isverifyToken: boolean;
   }
 
   constructor(props: any){
@@ -46,7 +47,8 @@ export default class App extends React.Component{
     this.state = {
       token: TOKEN,
       client: this.renderApolloClient(TOKEN),
-      isUpdate: false
+      isUpdate: false,
+      isverifyToken: false
     }
 
     this.verifyToken();
@@ -126,7 +128,7 @@ export default class App extends React.Component{
           {
             ({loading, data, refetch}: any) => {
               if(loading) return <div>Loading....</div>
-              if(this.state.token === '') {
+              if(this.state.isverifyToken === false) {
                 return <LoginScreen saveToken={this.saveToken}/>
               }
               return(
@@ -157,15 +159,14 @@ export default class App extends React.Component{
   saveToken = (token: string) => {
     this.setState({
       token,
-      client: this.renderApolloClient(token)
-    })
-
+      client: this.renderApolloClient(token),
+      isverifyToken: true
+    });
     localStorage.setItem('token', token);
-
   }
 
   logout = () => {
-    this.setState({ token: '' });
+    this.setState({ token: '', isverifyToken: false });
     localStorage.removeItem('token');
   }
 
@@ -176,12 +177,23 @@ export default class App extends React.Component{
 
     const data = QRY.data;
 
+    console.log(data.me);
+
     if(data.me === null) {
       localStorage.removeItem('token');
       this.setState({ 
         token: '',
-        client: this.renderApolloClient(null)
+        client: this.renderApolloClient(null),
+        isverifyToken: false
       });
+    }
+    else {
+      const token = localStorage.getItem('token');
+      this.setState({
+        token,
+        client: this.renderApolloClient(token),
+        isverifyToken: true
+      })
     }
   }
 

@@ -21,7 +21,7 @@ type Props = {
 export class SubscriptionComponent extends React.Component<Props> {
   
   constructor(props: Props){
-    super(props)
+    super(props);
   }
 
   onSubscriptionData = (option: OnSubscriptionDataOptions) => {

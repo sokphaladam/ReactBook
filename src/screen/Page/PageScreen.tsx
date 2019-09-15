@@ -4,6 +4,8 @@ import { Query, Mutation, MutationFunction } from 'react-apollo';
 import monent from 'moment';
 import { ModalComponent } from '../../components/ModalComponent';
 import { CommentScreen } from './CommentScreen';
+import { FormPostComponent } from '../../components/FormPostComponent';
+import { number } from 'prop-types';
 
 const QUERY_BOOK_LIST = gql`
 query getBookList{
@@ -28,12 +30,6 @@ query getBookList{
 const MUTATION_LOVE = gql`
 mutation createLove($id: Int!){
   createLove(id: $id)
-}
-`;
-
-const MUTATION_UPLOAD = gql`
-mutation singleUpload($file: Upload!){
-  singleUpload(file: $file)
 }
 `;
 
@@ -69,10 +65,6 @@ export class PageScreen extends React.Component<Props> {
     this.setState({ data: data.getCommentList })
   }
 
-  onMutationUploadCompleted = (data: any) => {
-    console.log(data);
-  }
-
   render() {
     return (
       <div>
@@ -100,45 +92,11 @@ export class PageScreen extends React.Component<Props> {
     if (this.props.hasChange) refetch();
     return (
       <div className="col-md-9">
-        <div className="card">
-          <div className="card-body">
-            <div className="comment-form" style={{ display: 'flex', height: 'auto' }}>
-              <img src={this.props.picture} alt="" style={{ width: 40, height: 40, borderRadius: '50%' }} />
-              <input type="text" placeholder="What's on your mind?" className="form-control" />
-              {this.renderUploadMutation()}        
-              <button type="button" style={{ fontSize: 20, marginRight: 10 }} onClick={()=>this.uploadInput.click()}>
-                <i className="fas fa-image" style={{ color: '#999999' }}></i>
-              </button>
-              <button type="button" style={{ fontSize: 20, marginRight: 10 }}>
-                <i className="fas fa-paper-plane" style={{ color: '#999999' }}></i>
-              </button>
-            </div>
-          </div>
-        </div>
+        <FormPostComponent picture={this.props.picture} />
         {
           data.getBookList.map((e: any) => this.renderCard(e))
         }
       </div>
-    )
-  }
-
-  renderUploadMutation(){
-    return(
-      <Mutation mutation={MUTATION_UPLOAD} fetchPolicy="no-cache" onCompleted={this.onMutationUploadCompleted}>
-        {
-          (mutation: any) => (
-            <input 
-              hidden={true} 
-              type="file" 
-              ref={(ref) => this.uploadInput = ref} 
-              onChange={async (e) => {
-                e.target.validity.valid && mutation({
-                  variables: { file: e.target.files![0] }
-                })
-              }}/>
-          )
-        }
-      </Mutation>
     )
   }
 
@@ -158,11 +116,9 @@ export class PageScreen extends React.Component<Props> {
             </div>
           </div>
           <p className="card-text">{data.title}</p>
-          <img
-            src={data.picture}
-            alt=""
-            className="card-img"
-          />
+          <div className="row">
+            {this.renderImage(data.picture)}
+          </div>
           {this.renderMutationLove(data.love, data.id, data.isLove)}
           <span className="card-link text-muted" style={{ cursor: 'pointer' }} onClick={() => { this.setState({ show: true, id: data.id }) }}> <i className="far fa-comment-alt" style={{ marginRight: 20 }}></i> {data.comment} </span>
         </div>
@@ -191,5 +147,22 @@ export class PageScreen extends React.Component<Props> {
         }
       </Mutation>
     )
+  }
+
+  renderImage(picture: string[]){
+    switch(picture.length % 2) {
+      case 0:
+        return picture.map((e: any, i: number) => <img className="card-img col-sm-6" src={e} key={i} style={{ height: 400, borderRadius: 10 }}/>)
+      default:
+        if(picture.length > 2 && picture.length < 4) {
+          return picture.map((e: any, i: number) => <img className={`card-img col-sm-${i === 0 ? '12': '6'}`} src={e} key={i} style={{ height: i === 0 ? 450: 350, borderRadius: 10 }}/>)
+        }
+        else if (picture.length > 4) {
+          return picture.map((e: any, i: number) => <img className={`card-img col-sm-${i === 0 ? '12': '3'}`} src={e} key={i} style={{ height: i === 0 ? 450: 200, borderRadius: 10 }}/>)
+        }
+        else {
+          return picture.map((e: any, i: number) => <img className={`card-img col-sm-12}`} src={e} key={i} style={{ height: i === 0 ? 450: 350, borderRadius: 10 }}/>)
+        }
+    }
   }
 }

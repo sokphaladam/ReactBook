@@ -23,22 +23,14 @@ export class MenuComponent extends React.Component<Props>{
   state: {
     username: string;
     image: string;
-    count: number;
   }
 
   constructor(props: Props) {
     super(props);
     this.state = {
       username: this.props.data.username,
-      image: this.props.data.picture,
-      count: 0
+      image: this.props.data.picture
     }
-  }
-
-  onCompleted = (data: any) => {
-    this.setState({
-      count: data.getNotificationCount
-    })
   }
 
   render() {
@@ -73,12 +65,12 @@ export class MenuComponent extends React.Component<Props>{
 
   renderQueryNotification(isBadge: boolean) {
     return (
-      <Query query={QUERY_NOTIFICATION_COUNT} fetchPolicy="network-only" onCompleted={this.onCompleted}>
+      <Query query={QUERY_NOTIFICATION_COUNT} fetchPolicy="network-only">
         {
           ({ loading, data, refetch }: any) => {
             if (loading) return <div>Loading...</div>
             if (this.props.hasChange) refetch();
-            return <span className="badge badge-danger" style={{ fontSize: 12, position: 'absolute' }} hidden={!isBadge || this.state.count === 0}>{data.getNotificationCount}</span>
+            return <span className="badge badge-danger" style={{ fontSize: 12, position: 'absolute' }} hidden={!isBadge || data.getNotificationCount === 0}>{data.getNotificationCount}</span>
           }
         }
       </Query>

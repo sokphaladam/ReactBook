@@ -65,7 +65,7 @@ export class NotificationScreen extends React.Component<Props>{
       <div className="card">
         <ul className="notification">
           {
-            data.getNotificationList.reverse().map((e: any) => (
+            data.getNotificationList.map((e: any) => (
               <Mutation mutation={MUTATION_STATUS} key={e.id}>
                 {
                   (update: MutationFunction)=> this.renderItem(e, update)
@@ -84,10 +84,10 @@ export class NotificationScreen extends React.Component<Props>{
         <img src={e.user.picture} className="profile" alt="" />
         <p>
           <b>{e.user.first_name} {e.user.last_name}</b> is <b>{e.type}</b> on your post:
-                  <br />
+          <br />
           <span>{e.book.title}</span>
         </p>
-        <img src={e.book.picture} alt="" className="post" />
+        <img src={e.book.picture[0]} alt="" className="post" />
       </li>
     )
   }
