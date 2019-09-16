@@ -6,6 +6,9 @@ import { ModalComponent } from '../../components/ModalComponent';
 import { CommentScreen } from './CommentScreen';
 import { FormPostComponent } from '../../components/FormPostComponent';
 import { number } from 'prop-types';
+import { StoriesScreen } from './StoriesScreen';
+import { EventScreen } from './EventScreen';
+import { DotMenuComponent } from '../../components/DotMenuComponent';
 
 const QUERY_BOOK_LIST = gql`
 query getBookList{
@@ -41,6 +44,7 @@ type Props = {
 export class PageScreen extends React.Component<Props> {
 
   uploadInput: any;
+  linkDownload: any;
 
   state: {
     isUpdate: boolean;
@@ -65,6 +69,7 @@ export class PageScreen extends React.Component<Props> {
     this.setState({ data: data.getCommentList })
   }
 
+
   render() {
     return (
       <div>
@@ -78,7 +83,8 @@ export class PageScreen extends React.Component<Props> {
           <div className="col-md-3">
             <div className="card">
               <div className="card-body">
-                Coming Soon!
+                <StoriesScreen/>
+                <EventScreen/>
               </div>
             </div>
           </div>
@@ -114,6 +120,7 @@ export class PageScreen extends React.Component<Props> {
               <h6 className="card-title" style={{ marginBottom: 1 }}>{data.user.first_name} {data.user.last_name}</h6>
               <sub className="card-subtitle text-muted">{monent(date).fromNow()}</sub>
             </div>
+            <DotMenuComponent image={data.picture}/>
           </div>
           <p className="card-text">{data.title}</p>
           <div className="row">
@@ -152,7 +159,7 @@ export class PageScreen extends React.Component<Props> {
   renderImage(picture: string[]){
     switch(picture.length % 2) {
       case 0:
-        return picture.map((e: any, i: number) => <img className="card-img col-sm-6" src={e} key={i} style={{ height: 400, borderRadius: 10 }}/>)
+        return picture.map((e: any, i: number) => <img className="card-img col-sm-6" src={e} key={i} style={{ height: 400, borderRadius: 10, cursor: 'pointer' }}/>)
       default:
         if(picture.length > 2 && picture.length < 4) {
           return picture.map((e: any, i: number) => <img className={`card-img col-sm-${i === 0 ? '12': '6'}`} src={e} key={i} style={{ height: i === 0 ? 450: 350, borderRadius: 10 }}/>)

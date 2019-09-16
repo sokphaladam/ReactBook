@@ -1,0 +1,47 @@
+.dotMenu {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  color: rgba(0,0,0,0.5);
+  transition: all .3s;
+
+  i {
+    cursor: pointer;
+    transition: all .3s;
+  }
+
+  i:hover {
+    color: rgba(0,0,0,0.8);
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    -webkit-box-shadow: 0px 0px 3px 0px #000000; 
+    box-shadow: 0px 0px 3px 0px #000000;
+    background-color: #ffffff;
+    z-index: 100;
+    position: absolute;
+    opacity: 0;
+    border-radius: 3px;
+    li {
+      padding: 10px 20px;
+      cursor: pointer;
+      display: flex;
+      i {
+        margin-right: 10px;
+      }
+    }
+
+    li:hover {
+      background-color: #999999;
+      color: #ffffff;
+    }
+  }
+}
+
+.dotMenu:hover {
+  ul {
+    opacity: 1;
+  }
+}
