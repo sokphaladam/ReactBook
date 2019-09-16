@@ -10,7 +10,7 @@ export class DotMenuComponent extends React.Component<Props> {
     show: boolean;
   }
 
-  constructor(props: Props){
+  constructor(props: Props) {
     super(props);
     this.state = {
       show: false
@@ -21,14 +21,13 @@ export class DotMenuComponent extends React.Component<Props> {
     this.props.image.map((x: string) => {
       const a = x.split('/');
       const link = document.createElement('a');
-      let bas = x.replace(/^data:image\/(png|jpg);base64,/, "");
-      console.log(bas)
-      link.href = bas;
-      // link.download = a[a.length - 1];
-      // document.body.appendChild(link);
-      // link.click();
-      link.remove();
-    })
+      getEncodeBase64(x, (e: any) =>{
+        link.href = 'data:image/jpeg;base64,' + e;
+        link.download = a[a.length - 1];
+        link.click();
+        link.remove();
+      });
+    }) 
   }
 
   render() {
@@ -41,4 +40,21 @@ export class DotMenuComponent extends React.Component<Props> {
       </div>
     )
   }
+}
+
+const getEncodeBase64 = (imgUrl: string, callback: any) => {
+  var xml = new XMLHttpRequest();
+  xml.onload = () => {
+    var b64 = btoa(
+      new Uint8Array(xml.response)
+      .reduce(
+        (data: any, byte: any) => 
+          data + String.fromCharCode(byte), ''
+      )
+    );
+    callback(b64);
+  }
+  xml.open('GET', imgUrl, true);
+  xml.responseType = 'arraybuffer';
+  xml.send();
 }

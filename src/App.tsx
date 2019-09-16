@@ -104,7 +104,7 @@ export default class App extends React.Component{
       ]),
       defaultOptions: {
         watchQuery: {
-          fetchPolicy: 'cache-and-network',
+          fetchPolicy: 'no-cache',
           errorPolicy: 'ignore'
         },
         query: {
