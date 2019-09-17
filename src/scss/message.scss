@@ -1,0 +1,22 @@
+.chat {
+  width: 100%;
+  .me {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(0,0,0,0.7);
+    span {
+      background-color: rgb(197, 197, 197);
+      padding: 7px;
+    }
+  }
+
+  .you {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    span {
+      background-color: #3737a5;
+      padding: 7px;
+    }
+  }
+}

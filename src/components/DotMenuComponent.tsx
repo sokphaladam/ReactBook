@@ -18,16 +18,22 @@ export class DotMenuComponent extends React.Component<Props> {
   }
 
   onClickDownload = () => {
-    this.props.image.map((x: string) => {
-      const a = x.split('/');
+    const items = this.props.image;
+
+    for(const i of items) {
+      
+      const a = i.split('/');
+      
       const link = document.createElement('a');
-      getEncodeBase64(x, (e: any) =>{
+      
+      getEncodeBase64(i, (e: any) =>{
         link.href = 'data:image/jpeg;base64,' + e;
         link.download = a[a.length - 1];
         link.click();
         link.remove();
       });
-    }) 
+      
+    }
   }
 
   render() {

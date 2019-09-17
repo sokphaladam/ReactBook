@@ -33,11 +33,6 @@ mutation setStatus($id: Int!){
 `;
 
 export class NotificationScreen extends React.Component<Props>{
-
-  constructor(props: Props) {
-    super(props);
-  }
-
   render() {
     return (
       <div className="row">

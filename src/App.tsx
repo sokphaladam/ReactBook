@@ -19,6 +19,7 @@ import { ProfileScreen } from './screen/Profile/ProfileScreen';
 import { createUploadLink } from 'apollo-upload-client';
 import { ApolloLink } from 'apollo-boost';
 import { onError } from 'apollo-link-error';
+import { MessageScreen } from './screen/Message/MessageScreen';
 
 const QUERY_ME = gql`
   query me{
@@ -73,10 +74,7 @@ export default class App extends React.Component{
       uri: `${BASE_URL}playground?token=${token}`
     });
     const WSLINK = new WebSocketLink({
-      uri: `ws://104.248.156.237:4000/graphql`,
-      options: {
-        reconnect: true
-      }
+      uri: `ws://104.248.156.237:4000/graphql`
     });
     const linkWS = split(
       ({ query }) => {
@@ -143,9 +141,10 @@ export default class App extends React.Component{
                       }}
                     />
                     <div className="Desktop-Menu">
-                      <Route exact path="/page" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate} picture={data.me.picture}/> }/>
+                      <Route exact path="/news" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate} picture={data.me.picture}/> }/>
                       <Route exact path="/notification" render={ (props) => <NotificationScreen {...props} hasChange={this.state.isUpdate}/> }/>
                       <Route exact path="/profile/:id" render={ (props) => <ProfileScreen {...props} hasChange={this.state.isUpdate}/> }/>
+                      <Route exact path="/messages" render={(props) => <MessageScreen {...props} hasChange={this.state.isUpdate} id={data.me.id}/>}/>
                     </div>
                 </DesktopComponent>
               )
@@ -176,8 +175,6 @@ export default class App extends React.Component{
     });
 
     const data = QRY.data;
-
-    console.log(data.me);
 
     if(data.me === null) {
       localStorage.removeItem('token');

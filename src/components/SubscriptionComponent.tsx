@@ -14,20 +14,28 @@ subscription{
 }
 `;
 
+const SUB_MSG = gql`
+subscription{
+  MessageSubscription{
+    sender,
+    receiver,
+    content,
+    type
+  }
+}
+`;
+
 type Props = {
   hasChange: (e: boolean) => any;
 }
 
 export class SubscriptionComponent extends React.Component<Props> {
   
-  constructor(props: Props){
-    super(props);
-  }
-
   onSubscriptionData = (option: OnSubscriptionDataOptions) => {
     if(
         option.subscriptionData.data.LoveSubscription === true ||
-        option.subscriptionData.data.CommentSubscription === true
+        option.subscriptionData.data.CommentSubscription === true ||
+        option.subscriptionData.data.MessageSubscription != null
       )
       {
         this.props.hasChange(true);
@@ -42,6 +50,7 @@ export class SubscriptionComponent extends React.Component<Props> {
       <div>
         {this.renderSubscription(SUB_LOVE)}
         {this.renderSubscription(SUB_COMMENT)}
+        {this.renderSubscription(SUB_MSG)}
       </div>
     )
   }

@@ -2,7 +2,7 @@ export const MenuItem = [
   {
     icon: 'far fa-newspaper',
     title: 'News',
-    to: '/page'
+    to: '/news'
   },
   {
     icon: 'far fa-bell',
