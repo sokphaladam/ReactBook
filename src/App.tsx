@@ -140,7 +140,7 @@ export default class App extends React.Component{
                         refetch();
                       }}
                     />
-                    <div className="Desktop-Menu">
+                    <div className="Desktop-Menu" style={{ padding: window.location.pathname  === '/messages' ? 0: 30 }}>
                       <Route exact path="/news" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate} picture={data.me.picture}/> }/>
                       <Route exact path="/notification" render={ (props) => <NotificationScreen {...props} hasChange={this.state.isUpdate}/> }/>
                       <Route exact path="/profile/:id" render={ (props) => <ProfileScreen {...props} hasChange={this.state.isUpdate}/> }/>

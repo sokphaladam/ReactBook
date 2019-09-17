@@ -1,22 +1,187 @@
-.chat {
-  width: 100%;
-  .me {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(0,0,0,0.7);
-    span {
-      background-color: rgb(197, 197, 197);
-      padding: 7px;
+.message-container {
+  display: flex;
+
+  .text-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: fixed;
+    width: 65%;
+    height: 100%;
+    border: solid;
+    border-width: 0 1px 0 0;
+    border-color: rgba(0,0,0,0.1);
+    
+    p {
+      color: rgba(0,0,0,0.5);
     }
   }
 
-  .you {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.7);
-    span {
-      background-color: #3737a5;
-      padding: 7px;
+  .channel {
+    position: fixed;
+    width: 65%;
+    height: 100%;
+    border: solid;
+    border-width: 0 1px 0 0;
+    border-color: rgba(0,0,0,0.1);
+
+    .header {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      padding: 15px;
+      border: solid;
+      border-color: rgba(0,0,0,0.1);
+      border-width: 0 0 1px 0;
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 20px;
+      }
+
+      p {
+        margin: 0;
+        color: rgba(0,0,0,0.7);
+        font-weight: 600;
+      }
+
+      sub {
+        color: rgba(0,0,0,0.4);
+        font-weight: 600;
+      }
+    }
+
+    .body {
+      padding: 20px;
+
+      .me {
+        display: block;
+        padding: 10px;
+        margin: 30px 0;
+        text-align: end;
+        transition: all .5s;
+
+        span{
+          background-color: #E7F1FF;
+          color: rgba(0,0,0,0.7);
+          padding: 20px;
+          border-radius: 7px;
+        }
+      }
+
+      .you {
+        display: block;
+        padding: 10px;
+        margin: 30px 0;
+        transition: all .5s;
+
+        span{
+          background-color: rgb(226, 225, 226);
+          color: rgba(0,0,0,0.7);
+          padding: 20px;
+          border-radius: 7px;
+        }
+      }
+
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px;
+      border: solid;
+      border-color: rgba(0,0,0,0.1);
+      border-width: 1px 0 0 0;
     }
   }
+  
+  .message {
+    position: fixed;
+    width: calc(100% - 65% - 250px);
+    height: 100%;
+    right: 0;
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 21px;
+      border: solid;
+      border-color: rgba(0,0,0,0.1);
+      border-width: 0 0 1px 0;
+
+      i {
+        font-size: 20px;
+        color: rgba(0,0,0,0.4);
+      }
+
+      .form-control {
+        border-radius: 0;
+        background-color: transparent;
+        border: none;
+      }
+  
+      .form-control:focus {
+        border: none;
+        box-shadow: 0 0 0 0 transparent;
+      }
+    }
+
+    .body {
+      
+      .block {
+        display: flex;
+        padding: 20px 10px;
+        cursor: pointer;
+        
+        img {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          margin-right: 15px;
+        }
+
+        p {
+          margin: 0;
+          font-weight: 600;
+          color: rgba(0,0,0,0.7);
+        }
+
+        sub {
+          color: rgba(0,0,0,0.4);
+          font-weight: 600;
+        }
+
+        .sub {
+          position: absolute;
+          right: 15px;
+
+          span {
+            border-radius: 50%;
+          }
+        }
+
+      }
+    }
+
+    .active {
+      background-color: #5975AF;
+      color: #ffffff !important;
+      transition: all .5s;
+
+      p {
+        color: #ffffff !important;
+      }
+
+      sub {
+        color: rgba(255,255,255,0.7) !important;
+      }
+    }
+  }
+
 }

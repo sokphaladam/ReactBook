@@ -1,7 +1,7 @@
 import React from 'react';
 import { gql } from 'apollo-boost';
 import moment from 'moment';
-import { Query } from 'react-apollo';
+import { Query, Mutation, MutationFunction } from 'react-apollo';
 
 const QUERY_USER = gql`
 query getUserList{
@@ -29,6 +29,12 @@ query getMessage($id: Int!, $to: Int!){
 } 
 `;
 
+const MUTATION_SEND = gql`
+mutation sendMessage($data: messageInput!){
+  sendMessage(data: $data)
+}
+`;
+
 type Props = {
   hasChange: any;
   id: number;
@@ -36,14 +42,18 @@ type Props = {
 
 export class MessageScreen extends React.Component<Props> {
 
+  refSubmit: any;
+
   state: {
     user: any;
+    messageInput: string;
   }
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      user: {}
+      user: {},
+      messageInput: ''
     }
   }
 
@@ -53,25 +63,43 @@ export class MessageScreen extends React.Component<Props> {
     })
   }
 
+  onSubmitSend = (e: any, update: MutationFunction) => {
+    e.preventDefault();
+    update({
+      variables: {
+        data: {
+          receiver: Number(this.state.user.id),
+          content: this.state.messageInput,
+          type: 'text'
+        }
+      }
+    });
+  }
+
+  onChangeInput = (e: any) => {
+    this.setState({
+      messageInput: e.target.value
+    });
+  }
+
+  onMutationComplete = (data: any) => {
+    if(data.sendMessage === true) {
+      this.setState({ messageInput: '' });
+    }
+  }
+
   render() {
     return (
-      <div className="row">
-        <div className="col-md-9">
-          <div className="card" style={{ position: "fixed", width: 'calc(100% - 40%)', height: '90%' }}>
-            {this.renderHeader()}
-            {this.renderBody()}
-            {this.renderFooter()}
+      <div className="message-container">
+        {this.renderChannel()}
+        <div className="message">
+          <div className="header">
+            <i className="fas fa-search"></i>
+            <input type="text" className="form-control" placeholder="Search in all messages" />
           </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card">
-            <div className="card-body friendRequest" style={{ marginTop: 0 }}>
-              <p>Friends</p>
-              <Query query={QUERY_USER} fetchPolicy="network-only">
-                {this.renderQueryFriend}
-              </Query>
-            </div>
-          </div>
+          <Query query={QUERY_USER} fetchPolicy="network-only">
+            {this.renderQueryFriend}
+          </Query>
         </div>
       </div>
     )
@@ -80,35 +108,104 @@ export class MessageScreen extends React.Component<Props> {
   renderQueryFriend = ({ loading, data }: any) => {
     if (loading) return <div>Loading...</div>
     return (
-      <div className="friendRequest-list">
+      <div className="body">
         {
           data.getUserList.map((x: any) => {
             if (x.id !== this.props.id) {
               return (
-                <div className="display-row cu" key={x.id} onClick={() => this.onClickUser(x)}>
+                <div className={`block ${this.state.user === x ? 'active' : ''}`} key={x.id} onClick={() => this.onClickUser(x)}>
                   <img src={x.picture} alt="" />
                   <div>
                     <p>{x.first_name} {x.last_name}</p>
                     <sub>{moment(new Date(x.created_at * 1)).fromNow()}</sub>
                   </div>
+                  <div className="text-right sub">
+                    <sub>{moment(new Date(x.created_at * 1)).fromNow()}</sub>
+                    <br />
+                    {/* <span className="badge badge-primary">7</span> */}
+                  </div>
                 </div>
               )
             }
+            return <div key={x.id}></div>
           })
         }
       </div>
     )
   }
 
+  renderHeader() {
+    return (
+      <div className="header">
+        <img src={this.state.user.picture} alt="" />
+        <div>
+          <p>{this.state.user.first_name} {this.state.user.last_name}</p>
+          <sub>{moment(new Date(this.state.user.created_at * 1)).fromNow()}</sub>
+        </div>
+      </div>
+    )
+  }
+
+  renderBody() {
+    return (
+      <div className="body">
+        <Query query={QUERY_MESSAGE} fetchPolicy="network-only" variables={{ id: Number(this.props.id), to: Number(this.state.user.id) }}>
+          {this.renderQueryMessage}
+        </Query>
+      </div>
+    )
+  }
+
+  renderFooter = (update: MutationFunction) => {
+    return (
+      <div className="footer">
+        <form className="comment-form" style={{ display: 'flex', height: 'auto' }} onSubmit={(e) => this.onSubmitSend(e, update)}>
+          <input 
+            type="text" 
+            placeholder="Type a messages..." 
+            className="form-control" 
+            style={{ width: '95%', paddingTop: 0, paddingBottom: 0 }}
+            value={this.state.messageInput}
+            onChange={this.onChangeInput}
+            onKeyPress={(e)=> {
+              if(e.keyCode === 13) {
+                this.refSubmit.click();
+              }
+            }}
+          />
+          <button type="submit" style={{ fontSize: 20, marginRight: 0 }} ref={(ref) => this.refSubmit = ref}>
+            <i className="fas fa-paper-plane" style={{ color: '#3737a5' }}></i>
+          </button>
+        </form>
+      </div>
+    )
+  }
+
+  renderChannel() {
+    if (this.state.user.id === undefined) {
+      return <div className="text-center"><p>Please select a chat to start messaging</p></div>;
+    }
+    else {
+      return (
+        <div className="channel">
+          {this.renderHeader()}
+          {this.renderBody()}
+          <Mutation mutation={MUTATION_SEND} onCompleted={this.onMutationComplete}>
+            {this.renderFooter}
+          </Mutation>
+        </div>
+      )
+    }
+  }
+
   renderQueryMessage = ({ loading, data, refetch }: any) => {
     if (loading) return <div>loading...</div>
     if (this.props.hasChange) refetch();
-    console.log(data)
     return (
-      <div className="chat">
+      <div className="block">
         {
           data.getMessage.map((x: any, i: number) => {
-            if (x.sender == this.props.id) {
+            if (x.sender === Number(this.props.id)) {
               return (
                 <div key={i} className="me">
                   <span>{x.content}</span>
@@ -126,48 +223,5 @@ export class MessageScreen extends React.Component<Props> {
         }
       </div>
     )
-  }
-
-  renderHeader() {
-    if (this.state.user.id != undefined) {
-      return (
-        <div className="card-header text-light" style={{ backgroundColor: '#3737a5' }}>
-          <div style={{ display: 'flex' }}>
-            <img src={this.state.user.picture} alt="" style={{ width: 50, height: 50, borderRadius: '50%', marginRight: 20 }} />
-            <div>
-              <p style={{ margin: 0, fontWeight: 600 }}>{this.state.user.first_name} {this.state.user.last_name}</p>
-              <sub style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{moment(new Date(this.state.user.created_at * 1)).fromNow()}</sub>
-            </div>
-          </div>
-        </div>
-      )
-    }
-  }
-
-  renderBody() {
-    if (this.state.user.id != undefined) {
-      return (
-        <div className="card-body">
-          <Query query={QUERY_MESSAGE} fetchPolicy="network-only" variables={{ id: Number(this.props.id), to: Number(this.state.user.id) }}>
-            {this.renderQueryMessage}
-          </Query>
-        </div>
-      )
-    }
-  }
-
-  renderFooter() {
-    if (this.state.user.id != undefined) {
-      return (
-        <div className="card-footer">
-          <form className="comment-form" style={{ display: 'flex', height: 'auto' }}>
-            <input type="text" placeholder="Type a messages..." className="form-control" style={{ width: '95%' }} />
-            <button type="submit" style={{ fontSize: 20, marginRight: 0 }}>
-              <i className="fas fa-paper-plane" style={{ color: '#3737a5' }}></i>
-            </button>
-          </form>
-        </div>
-      )
-    }
   }
 }

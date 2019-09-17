@@ -50,7 +50,8 @@ export class FriendRequestScreen extends React.Component{
                   </div>
                 </div>
               )
-            } 
+            }
+            return <div></div>;
           })
         }
       </div>
