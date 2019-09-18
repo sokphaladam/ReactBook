@@ -56,6 +56,8 @@
 
     .body {
       padding: 20px;
+      overflow-y: auto;
+      max-height: calc(100% - 17.5%);
 
       .me {
         display: block;
@@ -69,6 +71,19 @@
           color: rgba(0,0,0,0.7);
           padding: 20px;
           border-radius: 7px;
+          margin-left: 20px;
+
+          img {
+            width: 30%;
+            height: 25%;
+            border-radius: 7px;
+          }
+        
+        }
+
+        sub {
+          color: rgba(0,0,0,0.3);
+          font-weight: 600;
         }
       }
 
@@ -83,6 +98,18 @@
           color: rgba(0,0,0,0.7);
           padding: 20px;
           border-radius: 7px;
+          margin-right: 20px;
+
+          img {
+            width: 30%;
+            height: 25%;
+            border-radius: 7px;
+          }
+        }
+
+        sub {
+          color: rgba(0,0,0,0.3);
+          font-weight: 600;
         }
       }
 
@@ -97,6 +124,7 @@
       border: solid;
       border-color: rgba(0,0,0,0.1);
       border-width: 1px 0 0 0;
+      background-color: #F9F7FB;
     }
   }
   

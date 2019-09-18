@@ -144,7 +144,7 @@ export default class App extends React.Component{
                       <Route exact path="/news" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate} picture={data.me.picture}/> }/>
                       <Route exact path="/notification" render={ (props) => <NotificationScreen {...props} hasChange={this.state.isUpdate}/> }/>
                       <Route exact path="/profile/:id" render={ (props) => <ProfileScreen {...props} hasChange={this.state.isUpdate}/> }/>
-                      <Route exact path="/messages" render={(props) => <MessageScreen {...props} hasChange={this.state.isUpdate} id={data.me.id}/>}/>
+                      <Route exact path="/messages" render={(props) => <MessageScreen {...props} hasChange={this.state.isUpdate} id={data.me.id} client={this.state.client}/>}/>
                     </div>
                 </DesktopComponent>
               )

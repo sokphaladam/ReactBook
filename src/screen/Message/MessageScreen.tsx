@@ -1,19 +1,22 @@
 import React from 'react';
-import { gql } from 'apollo-boost';
+import { gql, ApolloClient } from 'apollo-boost';
 import moment from 'moment';
 import { Query, Mutation, MutationFunction } from 'react-apollo';
 
 const QUERY_USER = gql`
-query getUserList{
-  getUserList{
-    id
-    first_name,
-    last_name,
-    picture,
-    friends{
-      id
+query getMessageHistory{
+  getMessageHistory{
+    user{
+      first_name,
+      last_name,
+      id,
+      picture
     },
-    created_at
+    content,
+    type,
+    count,
+    created_at,
+    updated_at
   }
 }
 `;
@@ -24,7 +27,9 @@ query getMessage($id: Int!, $to: Int!){
     sender,
     receiver,
     content,
-  	type
+  	type,
+    picture,
+    created_at
   }
 } 
 `;
@@ -39,17 +44,25 @@ const MUTATION_UPLOAD = gql`
 mutation singleUpload($file: Upload!){
   singleUpload(file: $file)
 }
-`
+`;
+
+const MUTAION_SEEN = gql`
+mutation seenMessage($user_id: Int!){
+  seenMessage(user_id: $user_id)
+}
+`;
 
 type Props = {
   hasChange: any;
   id: number;
+  client: ApolloClient<any>;
 }
 
 export class MessageScreen extends React.Component<Props> {
 
   refSubmit: any;
   refPaperclip: any;
+  refSeen: any[] = [];
 
   state: {
     user: any;
@@ -66,20 +79,46 @@ export class MessageScreen extends React.Component<Props> {
     }
   }
 
-  onClickUser = (x: any) => {
+  onClickUser = (x: any, update: MutationFunction) => {
     this.setState({
       user: x
+    });
+
+    update({
+      variables: {
+        user_id: Number(x.user.id)
+      }
     })
+  }
+
+  onUpdateSeen = async () => {
+    const mut = await this.props.client.mutate({
+      mutation: MUTAION_SEEN,
+      variables: { user_id: Number(this.state.user.user.id) }
+    });
+
+    console.log(mut.data);
   }
 
   onSubmitSend = (e: any, update: MutationFunction) => {
     e.preventDefault();
+
+    let typeMessage = "text";
+
+    if (this.state.image !== "" && this.state.messageInput === "") {
+      typeMessage = "image"
+    }
+    else if (this.state.image !== "" && this.state.messageInput !== "") {
+      typeMessage = "textPic"
+    }
+
     update({
       variables: {
         data: {
-          receiver: Number(this.state.user.id),
+          receiver: Number(this.state.user.user.id),
           content: this.state.messageInput,
-          type: 'text'
+          picture: this.state.image,
+          type: typeMessage
         }
       }
     });
@@ -92,13 +131,13 @@ export class MessageScreen extends React.Component<Props> {
   }
 
   onMutationComplete = (data: any) => {
-    if(data.sendMessage === true) {
-      this.setState({ messageInput: '' });
+    if (data.sendMessage === true) {
+      this.setState({ messageInput: '', image: '' });
     }
   }
 
   onMutationUploadComplete = (data: any) => {
-    if(data.singleUpload !== null) {
+    if (data.singleUpload !== null) {
       this.setState({ image: data.singleUpload });
     }
   }
@@ -120,26 +159,33 @@ export class MessageScreen extends React.Component<Props> {
     )
   }
 
-  renderQueryFriend = ({ loading, data }: any) => {
+  renderQueryFriend = ({ loading, data, refetch }: any) => {
     if (loading) return <div>Loading...</div>
+    if (this.props.hasChange) refetch();
     return (
       <div className="body">
         {
-          data.getUserList.map((x: any) => {
+          data.getMessageHistory.map((x: any) => {
             if (x.id !== this.props.id) {
               return (
-                <div className={`block ${this.state.user === x ? 'active' : ''}`} key={x.id} onClick={() => this.onClickUser(x)}>
-                  <img src={x.picture} alt="" />
-                  <div>
-                    <p>{x.first_name} {x.last_name}</p>
-                    <sub>{moment(new Date(x.created_at * 1)).fromNow()}</sub>
-                  </div>
-                  <div className="text-right sub">
-                    <sub>{moment(new Date(x.created_at * 1)).fromNow()}</sub>
-                    <br />
-                    {/* <span className="badge badge-primary">7</span> */}
-                  </div>
-                </div>
+                <Mutation mutation={MUTAION_SEEN} key={x.user.id}>
+                  {
+                    (update: MutationFunction) => (
+                      <div className={`block ${this.state.user.user === x.user ? 'active' : ''}`} onClick={() => this.onClickUser(x, update)} ref={(ref) => this.refSeen.push({ id: x.user.id, seen: ref })}>
+                        <img src={x.user.picture} alt="" />
+                        <div>
+                          <p>{x.user.first_name} {x.user.last_name}</p>
+                          <sub>{x.type === 'image' ? "Photo" : x.content}</sub>
+                        </div>
+                        <div className="text-right sub">
+                          <sub>{moment(new Date(x.updated_at * 1)).fromNow()}</sub>
+                          <br />
+                          <span className="badge badge-primary" style={{ display: x.count === 0 ? 'none' : '' }}>{x.count}</span>
+                        </div>
+                      </div>
+                    )
+                  }
+                </Mutation>
               )
             }
             return <div key={x.id}></div>
@@ -152,9 +198,9 @@ export class MessageScreen extends React.Component<Props> {
   renderHeader() {
     return (
       <div className="header">
-        <img src={this.state.user.picture} alt="" />
+        <img src={this.state.user.user.picture} alt="" />
         <div>
-          <p>{this.state.user.first_name} {this.state.user.last_name}</p>
+          <p>{this.state.user.user.first_name} {this.state.user.user.last_name}</p>
           <sub>{moment(new Date(this.state.user.created_at * 1)).fromNow()}</sub>
         </div>
       </div>
@@ -163,8 +209,8 @@ export class MessageScreen extends React.Component<Props> {
 
   renderBody() {
     return (
-      <div className="body">
-        <Query query={QUERY_MESSAGE} fetchPolicy="network-only" variables={{ id: Number(this.props.id), to: Number(this.state.user.id) }}>
+      <div className="body" id="list-message">
+        <Query query={QUERY_MESSAGE} fetchPolicy="network-only" variables={{ id: Number(this.props.id), to: Number(this.state.user.user.id) }}>
           {this.renderQueryMessage}
         </Query>
       </div>
@@ -174,21 +220,21 @@ export class MessageScreen extends React.Component<Props> {
   renderFooter = (update: MutationFunction) => {
     return (
       <div className="footer">
-        <img src={this.state.image} alt=""/>
+        <img src={this.state.image} alt="" style={{ width: 100, height: 100 }} />
         <form className="comment-form" style={{ display: 'flex', height: 'auto' }} onSubmit={(e) => this.onSubmitSend(e, update)}>
           <button type="button" style={{ fontSize: 20, marginRight: 0 }} onClick={() => this.refPaperclip.click()}>
             <i className="fas fa-paperclip"></i>
             {this.renderUploadFile()}
           </button>
-          <input 
-            type="text" 
-            placeholder="Type a messages..." 
-            className="form-control" 
+          <input
+            type="text"
+            placeholder="Type a messages..."
+            className="form-control"
             style={{ width: '95%', paddingTop: 0, paddingBottom: 0 }}
             value={this.state.messageInput}
             onChange={this.onChangeInput}
-            onKeyPress={(e)=> {
-              if(e.keyCode === 13) {
+            onKeyPress={(e) => {
+              if (e.keyCode === 13) {
                 this.refSubmit.click();
               }
             }}
@@ -202,7 +248,7 @@ export class MessageScreen extends React.Component<Props> {
   }
 
   renderChannel() {
-    if (this.state.user.id === undefined) {
+    if (this.state.user.user === undefined) {
       return <div className="text-center"><p>Please select a chat to start messaging</p></div>;
     }
     else {
@@ -220,7 +266,19 @@ export class MessageScreen extends React.Component<Props> {
 
   renderQueryMessage = ({ loading, data, refetch }: any) => {
     if (loading) return <div>loading...</div>
-    if (this.props.hasChange) refetch();
+    if (this.props.hasChange) {
+      refetch();
+      this.onUpdateSeen();
+    }
+
+    var ele = document.getElementById("list-message");
+
+    ele!.scrollTo({
+      left: 0,
+      top: ele!.scrollHeight,
+      behavior: 'smooth'
+    });
+
     return (
       <div className="block">
         {
@@ -228,14 +286,16 @@ export class MessageScreen extends React.Component<Props> {
             if (x.sender === Number(this.props.id)) {
               return (
                 <div key={i} className="me">
-                  <span>{x.content}</span>
+                  <sub>{moment(new Date(x.created_at * 1)).fromNow()}</sub>
+                  {this.renderBlockContent(x.type, x.content, x.picture)}
                 </div>
               )
             }
             else {
               return (
                 <div key={i} className="you">
-                  <span>{x.content}</span>
+                  {this.renderBlockContent(x.type, x.content, x.picture)}
+                  <sub>{moment(new Date(x.created_at * 1)).fromNow()}</sub>
                 </div>
               )
             }
@@ -245,15 +305,15 @@ export class MessageScreen extends React.Component<Props> {
     )
   }
 
-  renderUploadFile(){
-    return(
+  renderUploadFile() {
+    return (
       <Mutation mutation={MUTATION_UPLOAD} onCompleted={this.onMutationUploadComplete}>
         {
           (update: MutationFunction) => (
-            <input 
-              type="file" 
-              style={{ display: 'none' }} 
-              ref={(ref) => this.refPaperclip = ref} 
+            <input
+              type="file"
+              style={{ display: 'none' }}
+              ref={(ref) => this.refPaperclip = ref}
               onChange={(e) => {
                 update({
                   variables: {
@@ -266,5 +326,34 @@ export class MessageScreen extends React.Component<Props> {
         }
       </Mutation>
     )
+  }
+
+  renderBlockContent(type: string, content: string, image: string) {
+    console.log(type);
+    switch (type) {
+      case "text":
+        return <span>{content}</span>
+      case "image":
+        return <span style={{ padding: 0 }}> <img src={image} alt="" /> </span>
+      case "textPic":
+        return <span style={{ padding: 0 }}>
+          <img src={image} alt="" style={{
+            borderRadius: '7px 7px 0 0'
+          }} />
+          <br />
+          <span
+            style={{
+              padding: 10,
+              width: '30%',
+              maxWidth: '30%',
+              margin: 0,
+              borderRadius: '0 0 7px 7px',
+              display: 'inline-block',
+              textAlign: 'start'
+            }}>
+            {content}
+          </span>
+        </span>
+    }
   }
 }
