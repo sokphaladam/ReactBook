@@ -35,6 +35,12 @@ mutation sendMessage($data: messageInput!){
 }
 `;
 
+const MUTATION_UPLOAD = gql`
+mutation singleUpload($file: Upload!){
+  singleUpload(file: $file)
+}
+`
+
 type Props = {
   hasChange: any;
   id: number;
@@ -43,17 +49,20 @@ type Props = {
 export class MessageScreen extends React.Component<Props> {
 
   refSubmit: any;
+  refPaperclip: any;
 
   state: {
     user: any;
     messageInput: string;
+    image: string;
   }
 
   constructor(props: Props) {
     super(props);
     this.state = {
       user: {},
-      messageInput: ''
+      messageInput: '',
+      image: ''
     }
   }
 
@@ -85,6 +94,12 @@ export class MessageScreen extends React.Component<Props> {
   onMutationComplete = (data: any) => {
     if(data.sendMessage === true) {
       this.setState({ messageInput: '' });
+    }
+  }
+
+  onMutationUploadComplete = (data: any) => {
+    if(data.singleUpload !== null) {
+      this.setState({ image: data.singleUpload });
     }
   }
 
@@ -159,7 +174,12 @@ export class MessageScreen extends React.Component<Props> {
   renderFooter = (update: MutationFunction) => {
     return (
       <div className="footer">
+        <img src={this.state.image} alt=""/>
         <form className="comment-form" style={{ display: 'flex', height: 'auto' }} onSubmit={(e) => this.onSubmitSend(e, update)}>
+          <button type="button" style={{ fontSize: 20, marginRight: 0 }} onClick={() => this.refPaperclip.click()}>
+            <i className="fas fa-paperclip"></i>
+            {this.renderUploadFile()}
+          </button>
           <input 
             type="text" 
             placeholder="Type a messages..." 
@@ -222,6 +242,29 @@ export class MessageScreen extends React.Component<Props> {
           })
         }
       </div>
+    )
+  }
+
+  renderUploadFile(){
+    return(
+      <Mutation mutation={MUTATION_UPLOAD} onCompleted={this.onMutationUploadComplete}>
+        {
+          (update: MutationFunction) => (
+            <input 
+              type="file" 
+              style={{ display: 'none' }} 
+              ref={(ref) => this.refPaperclip = ref} 
+              onChange={(e) => {
+                update({
+                  variables: {
+                    file: e.target.files![0]
+                  }
+                })
+              }}
+            />
+          )
+        }
+      </Mutation>
     )
   }
 }
