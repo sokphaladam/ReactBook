@@ -88,7 +88,7 @@ export class MessageScreen extends React.Component<Props> {
       variables: {
         user_id: Number(x.user.id)
       }
-    })
+    });
   }
 
   onUpdateSeen = async () => {
@@ -96,8 +96,6 @@ export class MessageScreen extends React.Component<Props> {
       mutation: MUTAION_SEEN,
       variables: { user_id: Number(this.state.user.user.id) }
     });
-
-    console.log(mut.data);
   }
 
   onSubmitSend = (e: any, update: MutationFunction) => {
@@ -140,6 +138,18 @@ export class MessageScreen extends React.Component<Props> {
     if (data.singleUpload !== null) {
       this.setState({ image: data.singleUpload });
     }
+  }
+
+  onQueryMessageComplete = (data: any) => {
+    console.log(data);
+    setTimeout(() => {
+      const scroll: any = document.getElementById('list-message');
+      scroll.scrollTo({
+        left: 0,
+        top: scroll.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 1000)
   }
 
   render() {
@@ -210,7 +220,13 @@ export class MessageScreen extends React.Component<Props> {
   renderBody() {
     return (
       <div className="body" id="list-message">
-        <Query query={QUERY_MESSAGE} fetchPolicy="network-only" variables={{ id: Number(this.props.id), to: Number(this.state.user.user.id) }}>
+        <Query 
+          query={QUERY_MESSAGE} 
+          fetchPolicy="network-only" 
+          variables={{ id: Number(this.props.id), to: Number(this.state.user.user.id) }} 
+          onCompleted={this.onQueryMessageComplete}
+          skip={this.state.user.user === undefined}
+        >
           {this.renderQueryMessage}
         </Query>
       </div>
@@ -271,14 +287,6 @@ export class MessageScreen extends React.Component<Props> {
       this.onUpdateSeen();
     }
 
-    var ele = document.getElementById("list-message");
-
-    ele!.scrollTo({
-      left: 0,
-      top: ele!.scrollHeight,
-      behavior: 'smooth'
-    });
-
     return (
       <div className="block">
         {
@@ -329,7 +337,6 @@ export class MessageScreen extends React.Component<Props> {
   }
 
   renderBlockContent(type: string, content: string, image: string) {
-    console.log(type);
     switch (type) {
       case "text":
         return <span>{content}</span>
