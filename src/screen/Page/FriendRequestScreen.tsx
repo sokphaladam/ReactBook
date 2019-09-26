@@ -51,7 +51,7 @@ export class FriendRequestScreen extends React.Component{
                 </div>
               )
             }
-            return <div></div>;
+            return <div key={i}></div>;
           })
         }
       </div>

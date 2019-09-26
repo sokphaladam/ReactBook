@@ -92,7 +92,7 @@ export class MessageScreen extends React.Component<Props> {
   }
 
   onUpdateSeen = async () => {
-    const mut = await this.props.client.mutate({
+    await this.props.client.mutate({
       mutation: MUTAION_SEEN,
       variables: { user_id: Number(this.state.user.user.id) }
     });

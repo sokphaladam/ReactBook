@@ -5,6 +5,7 @@ import { HttpLink } from 'apollo-link-http';
 import ApolloClient from 'apollo-client';
 import { LoginScreen } from './screen/LoginScreen';
 import { gql, split } from 'apollo-boost';
+// import { gql } from 'apollo-boost';
 import './scss/main.scss';
 import { DesktopComponent } from './components/DesktopComponent';
 import { MenuComponent } from './components/MenuComponent';
@@ -76,6 +77,7 @@ export default class App extends React.Component{
     const WSLINK = new WebSocketLink({
       uri: `ws://104.248.156.237:4000/graphql`
     });
+    const UPLOAD_LINK = createUploadLink({ uri: `${BASE_URL}playground?token=${token}` });
     const linkWS = split(
       ({ query }) => {
         const definition = getMainDefinition(query);
@@ -97,7 +99,7 @@ export default class App extends React.Component{
             );
           if (networkError) console.log(`[Network error]: ${networkError}`);
         }),
-        createUploadLink({ uri: `${BASE_URL}playground?token=${token}` }),
+        UPLOAD_LINK,
         linkWS
       ]),
       defaultOptions: {

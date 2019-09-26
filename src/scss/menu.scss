@@ -14,7 +14,7 @@
     li {
       font-size: 14px;
       font-weight: 600;
-      text-align: start;
+      text-align: flex-start;
       color: #999999;
       padding: 10px 0 10px 50px;
       cursor: pointer;
@@ -22,7 +22,7 @@
 
       span {
         margin-left: 20px;
-        text-align: start;
+        text-align: flex-start;
         text-decoration: none;
       }
     }
@@ -51,7 +51,7 @@
       }
 
       .content {
-        text-align: start;
+        text-align: flex-start;
         margin-left: 20px;
 
         h6 {

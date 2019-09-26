@@ -19,7 +19,7 @@ export class LoginScreen extends React.Component<Props>{
     password: string;
   }
 
-  constructor(props: Props){
+  constructor(props: Props) {
     super(props);
     this.state = {
       username: '',
@@ -27,7 +27,7 @@ export class LoginScreen extends React.Component<Props>{
     }
   }
 
-  onInputChange = (e: any) =>{
+  onInputChange = (e: any) => {
     this.setState({
       [e.target.name]: e.target.value
     })
@@ -47,14 +47,22 @@ export class LoginScreen extends React.Component<Props>{
     this.props.saveToken(data.login);
   }
 
-  render(){
-    return(
+  render() {
+    return (
+      <div>
+        {/* {this.renderMutationLogin()} */}
+      </div>
+    )
+  }
+
+  renderMutationLogin() {
+    return (
       <Mutation mutation={LOGIN} onCompleted={this.onMutationComplete}>
         {
           (update: MutationFunction) => (
             <form onSubmit={(e) => this.onSubmite(e, update)}>
-              <input type="text" placeholder="username" name="username" value={this.state.username} onChange={this.onInputChange}/>
-              <input type="password" placeholder="password" name="password" value={this.state.password} onChange={this.onInputChange}/>
+              <input type="text" placeholder="username" name="username" value={this.state.username} onChange={this.onInputChange} />
+              <input type="password" placeholder="password" name="password" value={this.state.password} onChange={this.onInputChange} />
               <button type="submit">login</button>
             </form>
           )
