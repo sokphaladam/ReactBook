@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Query } from 'react-apollo';
 import { gql } from 'apollo-boost';
+import ContentLoader from 'react-content-loader';
 
 type Props = {
   menuItems: any[];

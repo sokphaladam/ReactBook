@@ -9,6 +9,7 @@ import { StoriesScreen } from './StoriesScreen';
 import { EventScreen } from './EventScreen';
 import { DotMenuComponent } from '../../components/DotMenuComponent';
 import { FriendRequestScreen } from './FriendRequestScreen';
+import { ContentLoaderComponent } from '../../components/ContentLoaderComponent';
 
 const QUERY_BOOK_LIST = gql`
 query getBookList{
@@ -95,7 +96,7 @@ export class PageScreen extends React.Component<Props> {
   }
 
   renderQueryBookList = ({ data, loading, refetch }: any) => {
-    if (loading) return <div>Loading....</div>
+    if (loading) return <div><ContentLoaderComponent type="POST"/></div>
     if (this.props.hasChange) refetch();
     return (
       <div className="col-md-9">

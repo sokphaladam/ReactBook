@@ -21,6 +21,7 @@ import { createUploadLink } from 'apollo-upload-client';
 import { ApolloLink } from 'apollo-boost';
 import { onError } from 'apollo-link-error';
 import { MessageScreen } from './screen/Message/MessageScreen';
+import { ContentLoaderComponent } from './components/ContentLoaderComponent';
 
 const QUERY_ME = gql`
   query me{
@@ -104,8 +105,8 @@ export default class App extends React.Component{
       ]),
       defaultOptions: {
         watchQuery: {
-          fetchPolicy: 'no-cache',
-          errorPolicy: 'ignore'
+          fetchPolicy: 'network-only',
+          errorPolicy: 'all'
         },
         query: {
           fetchPolicy: 'network-only',
@@ -127,7 +128,7 @@ export default class App extends React.Component{
         <Query query={QUERY_ME} fetchPolicy="network-only">
           {
             ({loading, data, refetch}: any) => {
-              if(loading) return <div>Loading....</div>
+              if(loading) return <div> <ContentLoaderComponent  type="PAGE" /> </div>
               if(this.state.isverifyToken === false) {
                 return <LoginScreen saveToken={this.saveToken}/>
               }
