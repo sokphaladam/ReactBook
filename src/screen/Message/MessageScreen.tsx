@@ -68,6 +68,7 @@ export class MessageScreen extends React.Component<Props> {
     user: any;
     messageInput: string;
     image: string;
+    listed: boolean;
   }
 
   constructor(props: Props) {
@@ -75,13 +76,15 @@ export class MessageScreen extends React.Component<Props> {
     this.state = {
       user: {},
       messageInput: '',
-      image: ''
+      image: '',
+      listed: false
     }
   }
 
   onClickUser = (x: any, update: MutationFunction) => {
     this.setState({
-      user: x
+      user: x,
+      listed: !this.state.listed
     });
 
     update({
@@ -156,7 +159,7 @@ export class MessageScreen extends React.Component<Props> {
     return (
       <div className="message-container">
         {this.renderChannel()}
-        <div className="message">
+        <div hidden={window.innerWidth <= 1000 ? this.state.listed : false} className="message" style={{ width: window.innerWidth >= 1280 ? 'calc(100% - 65% - 250px)': window.innerWidth <= 1000 ? '100%':'calc(100% - 55% - 250px)' }}>
           <div className="header">
             <i className="fas fa-search"></i>
             <input type="text" className="form-control" placeholder="Search in all messages" />
@@ -173,7 +176,7 @@ export class MessageScreen extends React.Component<Props> {
     if (loading) return <div>Loading...</div>
     if (this.props.hasChange) refetch();
     return (
-      <div className="body">
+      <div className="body" style={{ overflowY: 'auto', maxHeight: '90%' }}>
         {
           data.getMessageHistory.map((x: any) => {
             if (x.id !== this.props.id) {
@@ -181,7 +184,7 @@ export class MessageScreen extends React.Component<Props> {
                 <Mutation mutation={MUTAION_SEEN} key={x.user.id}>
                   {
                     (update: MutationFunction) => (
-                      <div className={`block ${this.state.user.user === x.user ? 'active' : ''}`} onClick={() => this.onClickUser(x, update)} ref={(ref) => this.refSeen.push({ id: x.user.id, seen: ref })}>
+                      <div style={{ position: "relative" }} className={`block ${this.state.user.user === x.user ? 'active' : ''}`} onClick={() => this.onClickUser(x, update)} ref={(ref) => this.refSeen.push({ id: x.user.id, seen: ref })}>
                         <img src={x.user.picture} alt="" />
                         <div>
                           <p>{x.user.first_name} {x.user.last_name}</p>
@@ -212,6 +215,9 @@ export class MessageScreen extends React.Component<Props> {
         <div>
           <p>{this.state.user.user.first_name} {this.state.user.user.last_name}</p>
           <sub>{moment(new Date(this.state.user.created_at * 1)).fromNow()}</sub>
+        </div>
+        <div style={{ position: "absolute", top: '4%', right: '15px', cursor: 'pointer' }} onClick={()=>{this.setState({ listed: !this.state.listed })}}>
+          <i className="fas fa-user-friends"></i>
         </div>
       </div>
     )
@@ -265,11 +271,11 @@ export class MessageScreen extends React.Component<Props> {
 
   renderChannel() {
     if (this.state.user.user === undefined) {
-      return <div className="text-center"><p>Please select a chat to start messaging</p></div>;
+      return <div className="text-center" style={{ width: window.innerWidth >= 1280 ? '65%': window.innerWidth <= 1000 ? '100%':'55%' }}><p>Please select a chat to start messaging</p></div>;
     }
     else {
       return (
-        <div className="channel">
+        <div className="channel" style={{ width: window.innerWidth >= 1280 ? '65%': window.innerWidth <= 1000 ? '100%':'55%' }}>
           {this.renderHeader()}
           {this.renderBody()}
           <Mutation mutation={MUTATION_SEND} onCompleted={this.onMutationComplete}>

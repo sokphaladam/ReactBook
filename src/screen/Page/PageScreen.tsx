@@ -70,7 +70,6 @@ export class PageScreen extends React.Component<Props> {
     this.setState({ data: data.getCommentList })
   }
 
-
   render() {
     return (
       <div>
@@ -78,15 +77,17 @@ export class PageScreen extends React.Component<Props> {
           <CommentScreen show={this.state.show} hasChange={this.props.hasChange} id={this.state.id} />
         </ModalComponent>
         <div className="row">
-          <Query query={QUERY_BOOK_LIST} fetchPolicy="network-only">
-            {this.renderQueryBookList}
-          </Query>
-          <div className="col-md-3">
+          <div className={`col-md-${window.innerWidth <= 1280 ? '12' : '9'}`}>
+            <Query query={QUERY_BOOK_LIST} fetchPolicy="network-only">
+              {this.renderQueryBookList}
+            </Query>
+          </div>
+          <div className="col-md-3" style={{ display: window.innerWidth <= 1280 ? 'none' : '' }}>
             <div className="card">
               <div className="card-body">
-                <StoriesScreen/>
-                <EventScreen/>
-                <FriendRequestScreen/>
+                <StoriesScreen />
+                <EventScreen />
+                <FriendRequestScreen />
               </div>
             </div>
           </div>
@@ -96,10 +97,10 @@ export class PageScreen extends React.Component<Props> {
   }
 
   renderQueryBookList = ({ data, loading, refetch }: any) => {
-    if (loading) return <div><ContentLoaderComponent type="POST"/></div>
+    if (loading) return <div><ContentLoaderComponent type="POST" /></div>
     if (this.props.hasChange) refetch();
     return (
-      <div className="col-md-9">
+      <div>
         <FormPostComponent picture={this.props.picture} />
         {
           data.getBookList.map((e: any) => this.renderCard(e))
@@ -122,7 +123,7 @@ export class PageScreen extends React.Component<Props> {
               <h6 className="card-title" style={{ marginBottom: 1 }}>{data.user.first_name} {data.user.last_name}</h6>
               <sub className="card-subtitle text-muted">{monent(date).fromNow()}</sub>
             </div>
-            <DotMenuComponent image={data.picture}/>
+            <DotMenuComponent image={data.picture} />
           </div>
           <p className="card-text">{data.title}</p>
           <div className="row">
@@ -158,19 +159,19 @@ export class PageScreen extends React.Component<Props> {
     )
   }
 
-  renderImage(picture: string[]){
-    switch(picture.length % 2) {
+  renderImage(picture: string[]) {
+    switch (picture.length % 2) {
       case 0:
-        return picture.map((e: any, i: number) => <img className="card-img col-sm-6" src={e} key={i} style={{ height: 400, borderRadius: 10, cursor: 'pointer' }} alt=""/>)
+        return picture.map((e: any, i: number) => <img className="card-img col-sm-6" src={e} key={i} style={{ height: 400, borderRadius: 10, cursor: 'pointer' }} alt="" />)
       default:
-        if(picture.length > 2 && picture.length < 4) {
-          return picture.map((e: any, i: number) => <img alt="" className={`card-img col-sm-${i === 0 ? '12': '6'}`} src={e} key={i} style={{ height: i === 0 ? 450: 350, borderRadius: 10 }}/>)
+        if (picture.length > 2 && picture.length < 4) {
+          return picture.map((e: any, i: number) => <img alt="" className={`card-img col-sm-${i === 0 ? '12' : '6'}`} src={e} key={i} style={{ height: i === 0 ? 450 : 350, borderRadius: 10 }} />)
         }
         else if (picture.length > 4) {
-          return picture.map((e: any, i: number) => <img alt="" className={`card-img col-sm-${i === 0 ? '12': '3'}`} src={e} key={i} style={{ height: i === 0 ? 450: 200, borderRadius: 10 }}/>)
+          return picture.map((e: any, i: number) => <img alt="" className={`card-img col-sm-${i === 0 ? '12' : '3'}`} src={e} key={i} style={{ height: i === 0 ? 450 : 200, borderRadius: 10 }} />)
         }
         else {
-          return picture.map((e: any, i: number) => <img alt="" className={`card-img col-sm-12}`} src={e} key={i} style={{ height: i === 0 ? 450: 350, borderRadius: 10 }}/>)
+          return picture.map((e: any, i: number) => <img alt="" className={`card-img col-sm-12}`} src={e} key={i} style={{ height: i === 0 ? 450 : 350, borderRadius: 10 }} />)
         }
     }
   }

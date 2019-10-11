@@ -22,6 +22,8 @@ import { ApolloLink } from 'apollo-boost';
 import { onError } from 'apollo-link-error';
 import { MessageScreen } from './screen/Message/MessageScreen';
 import { ContentLoaderComponent } from './components/ContentLoaderComponent';
+import { RegisterScreen } from './screen/RegisterScreen';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 const QUERY_ME = gql`
   query me{
@@ -33,8 +35,8 @@ const QUERY_ME = gql`
 
 const BASE_URL = 'http://104.248.156.237:4000/';
 
-export default class App extends React.Component{
-  
+export default class App extends React.Component {
+
   state: {
     token: string | null;
     client: ApolloClient<any>;
@@ -42,7 +44,7 @@ export default class App extends React.Component{
     isverifyToken: boolean;
   }
 
-  constructor(props: any){
+  constructor(props: any) {
     super(props);
 
     const TOKEN = localStorage.getItem('token');
@@ -61,11 +63,13 @@ export default class App extends React.Component{
     this.setState({ isUpdate: e })
   }
 
-  render(){
-    return(
+  render() {
+    return (
       <ApolloProvider client={this.state.client}>
-        <SubscriptionComponent hasChange={this.hasChange}/>
-        {this.renderVerifyToken()}
+        <SubscriptionComponent hasChange={this.hasChange} />
+        <Router>
+          {this.renderVerifyToken()}
+        </Router>
       </ApolloProvider>
     )
   }
@@ -92,7 +96,7 @@ export default class App extends React.Component{
     )
     const CLIENT = new ApolloClient({
       cache: CACHE,
-      link: ApolloLink.from([ 
+      link: ApolloLink.from([
         onError(({ graphQLErrors, networkError }) => {
           if (graphQLErrors)
             graphQLErrors.map(({ message, locations, path }) =>
@@ -121,40 +125,44 @@ export default class App extends React.Component{
     return CLIENT;
   }
 
-  renderVerifyToken(){
-    if(this.state.token === null) return <LoginScreen saveToken={this.saveToken}/>
-    else{
-      return(
+  renderVerifyToken() {
+    if (this.state.token === null) return <LoginScreen saveToken={this.saveToken} />
+    else {
+      return (
         <Query query={QUERY_ME} fetchPolicy="network-only">
           {
-            ({loading, data, refetch}: any) => {
-              if(loading) return <div> <ContentLoaderComponent  type="PAGE" /> </div>
-              if(this.state.isverifyToken === false) {
-                return <LoginScreen saveToken={this.saveToken}/>
+            ({ loading, data, refetch }: any) => {
+              if (loading) return <div> <ContentLoaderComponent type="PAGE" /> </div>
+              if (this.state.isverifyToken === false) {
+                if(window.location.hash === "#register") return <RegisterScreen/>
+                return <LoginScreen saveToken={this.saveToken} />
               }
-              return(
+              return (
                 <DesktopComponent>
-                    <MenuComponent 
+                  {
+                    window.innerWidth <= 1000 ? <div></div> :
+                    <MenuComponent
                       menuItems={MenuItem}
                       hasChange={this.state.isUpdate}
                       data={data.me}
-                      onLogout={()=>{
+                      onLogout={() => {
                         this.logout();
                         refetch();
                       }}
                     />
-                    <div className="Desktop-Menu" style={{ padding: window.location.pathname  === '/messages' ? 0: 30 }}>
-                      <Route exact path="/" render={ (props) => <PageScreen  {...props} hasChange={this.state.isUpdate} picture={data.me.picture}/> }/>
-                      <Route exact path="/notification" render={ (props) => <NotificationScreen {...props} hasChange={this.state.isUpdate}/> }/>
-                      <Route exact path="/profile/:id" render={ (props) => <ProfileScreen {...props} hasChange={this.state.isUpdate}/> }/>
-                      <Route exact path="/messages" render={(props) => <MessageScreen {...props} hasChange={this.state.isUpdate} id={data.me.id} client={this.state.client}/>}/>
-                    </div>
+                  }
+                  <div className="Desktop-Menu" style={{ padding: window.location.pathname === '/messages' ? 0 : 30, left: window.innerWidth <= 1000 ? '0': '250px', width: window.innerWidth <= 1000 ? '100%': 'calc(100% - 250px)'}}>
+                    <Route exact path="/" render={(props) => <PageScreen  {...props} hasChange={this.state.isUpdate} picture={data.me.picture} />} />
+                    <Route exact path="/notification" render={(props) => <NotificationScreen {...props} hasChange={this.state.isUpdate} />} />
+                    <Route exact path="/profile/:id" render={(props) => <ProfileScreen {...props} hasChange={this.state.isUpdate} />} />
+                    <Route exact path="/messages" render={(props) => <MessageScreen {...props} hasChange={this.state.isUpdate} id={data.me.id} client={this.state.client} />} />
+                  </div>
                 </DesktopComponent>
               )
             }
           }
         </Query>
-      ) 
+      )
     }
   }
 
@@ -179,9 +187,9 @@ export default class App extends React.Component{
 
     const data = QRY.data;
 
-    if(data.me === null) {
+    if (data.me === null) {
       localStorage.removeItem('token');
-      this.setState({ 
+      this.setState({
         token: '',
         client: this.renderApolloClient(null),
         isverifyToken: false

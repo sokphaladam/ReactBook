@@ -1,6 +1,7 @@
 import React from 'react';
 import { gql } from 'apollo-boost';
 import { Mutation, MutationFunction } from 'react-apollo';
+import { Link } from 'react-router-dom';
 
 const LOGIN = gql`
   mutation login($username: String!, $password: String!){
@@ -87,7 +88,7 @@ export class LoginScreen extends React.Component<Props>{
                 <input className="form-control" type="password" placeholder="password" name="password" value={this.state.password} onChange={this.onInputChange} />
               </div>
               <button className="btn btn-primary btn-block" type="submit">Login</button>
-              <button type="button" className="btn btn-link btn-block" style={{ marginTop: '10%' }}>Create new account</button>
+              <button onClick={()=>{ window.location.hash = "#register" }} type="button" className="btn btn-link btn-block" style={{ marginTop: '10%', border: 'none' }}>Create new account</button>
             </form>
           )
         }

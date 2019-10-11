@@ -1,10 +1,10 @@
 import React from 'react';
 
-export class DesktopComponent extends React.Component{
+export class MobileComponent extends React.Component{
   render(){
     return(
       <div>
-        <div className="Desktop">
+        <div className="Mobile">
           {this.props.children}
         </div>
       </div>
